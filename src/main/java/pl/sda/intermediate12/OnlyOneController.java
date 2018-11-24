@@ -1,7 +1,5 @@
 package pl.sda.intermediate12;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pl.sda.intermediate12.categories.CategoryDTO;
 import pl.sda.intermediate12.categories.CategoryService;
+import pl.sda.intermediate12.products.Product;
+import pl.sda.intermediate12.products.ProductDAO;
+import pl.sda.intermediate12.products.JDOMToJavaWithJAXBReader;
 import pl.sda.intermediate12.users.*;
-import pl.sda.intermediate12.weather.model.WeatherResult;
 import pl.sda.intermediate12.weather.services.WeatherService;
 
 import java.util.List;
@@ -31,6 +31,14 @@ public class OnlyOneController {
     private UserDAO userDAO;
     @Autowired
     private UserContextHolder userContextHolder;
+    @Autowired
+    private UserLoginService userLoginService;
+    @Autowired
+    private UserLogoutService userLogoutService;
+    @Autowired
+    private ProductDAO productDAO;
+    @Autowired
+    private JDOMToJavaWithJAXBReader JDOMToJavaWithJAXBReader;
 
     @RequestMapping(value = "/categories")
     public String categories(@RequestParam(required = false) String searchText, Model model) {
@@ -84,12 +92,7 @@ public class OnlyOneController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public String loginEffect(UserLoginDTO userLoginDTO, Model model) {
-        Boolean loggedIn = userDAO.getUserList().stream()
-                .filter(u -> u.getEMail().equals(userLoginDTO.getLogin()))
-                .findFirst()
-                .map(u -> u.getPasswordHash().equals(DigestUtils.sha512Hex(userLoginDTO.getPassword())))
-                .orElse(false);
-        if (loggedIn) {
+        if (userLoginService.checkIfUserCanBeLogged(userLoginDTO)) {
             userContextHolder.logUser(userLoginDTO.getLogin());
             return "index";
         } else {
@@ -97,9 +100,10 @@ public class OnlyOneController {
             model.addAttribute("error", "Błąd logowania");
             return "loginForm";
         }
+
     }
-<<<<<<< HEAD
-=======
+//<<<<<<< HEAD
+//=======
 
     @RequestMapping(value = "/weather", method = RequestMethod.GET)
     @ResponseBody//wysyła dane a nie szuka htmla
@@ -109,5 +113,25 @@ public class OnlyOneController {
 
     }
 
->>>>>>> develop
+//>>>>>>> develop
+
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public String logoutEffect(UserLoginDTO userLoginDTO, Model model) {
+        if (userLogoutService.checkIfUserCanBeLoggedOut()) {
+            userContextHolder.logOutUser();
+            model.addAttribute("logoutMessage", "Wylogowano poprawnie");
+
+        } else model.addAttribute("logoutMessage", "Nie jesteś zalogowany");
+        return "index";
+    }
+
+    @RequestMapping(value = "/products", method = RequestMethod.GET)
+    public String products(Model model) {
+        JDOMToJavaWithJAXBReader.readProductsListFromFile();
+        List<Product> products = productDAO.getProductsList();
+
+        //To zostanie wyslane na front
+        return "products"; //takiego htmla bedzie szukac nasza aplikacja
+
+    }
 }

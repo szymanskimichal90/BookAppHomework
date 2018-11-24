@@ -13,7 +13,8 @@ public class UserContextHolder {
     public void logOutUser() {
         userLoggedDTO = null;
     }
-    public String getUserLoggedIn(){
-        return userLoggedDTO==null?null:userLoggedDTO.getLogin();
+
+    public String getUserLoggedIn() {
+        return userLoggedDTO == null ? null : userLoggedDTO.getLogin();
     }
 }
