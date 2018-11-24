@@ -9,9 +9,10 @@ import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-
 @Setter
+@Getter
 @XmlRootElement(name = "book")
+//@Builder
 public class Product  {
 
     private String id;
@@ -21,8 +22,12 @@ public class Product  {
     private String title;
     private String genre;
     private BigDecimal price;
-    private Date publish_date;
+    private String publish_date;
     private String description;
+
+    public Product() {
+
+    }
 
 
     public String getId() {
@@ -37,9 +42,15 @@ public class Product  {
 //    private Integer stockAmount;
 
 
-
-
-
+    public Product(String id, String author, String title, String genre, BigDecimal price, String publish_date, String description) {
+        this.id = id;
+        this.author = author;
+        this.title = title;
+        this.genre = genre;
+        this.price = price;
+        this.publish_date = publish_date;
+        this.description = description;
+    }
 
     @Override
     public String toString() {

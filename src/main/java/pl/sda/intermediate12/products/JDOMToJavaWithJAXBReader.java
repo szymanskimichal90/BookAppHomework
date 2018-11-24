@@ -13,11 +13,14 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
-public class XMLToJavaWithJAXBReader {
+public class JDOMToJavaWithJAXBReader {
     @Autowired
     ProductDAO productDAO;
 
@@ -25,10 +28,10 @@ public class XMLToJavaWithJAXBReader {
     private File file = new File(PRODUCTS_DATA_TXT);
 
 
-    public void readProductsListFromFile() {
+    public List<Product> readProductsListFromFile() {
         try {
             SAXBuilder saxBuilder = new SAXBuilder();
-            Document doc =  saxBuilder.build(file);
+            Document doc = saxBuilder.build(file);
             Element classElement = doc.getRootElement();
 
             List<Element> elements = classElement.getChildren("book");
@@ -38,23 +41,30 @@ public class XMLToJavaWithJAXBReader {
                 Product prod = new Product();
                 prod.setId(element.getAttributeValue("id"));
                 prod.setAuthor(element.getChildText("author"));
-                prod.setDescription(element.getChildText("description"));
+                prod.setDescription(((element.getChildText("description")).replace("\n","")).replaceAll("( )+", " "));
                 prod.setGenre(element.getChildText("genre"));
-                prod.setPrice(new BigDecimal(element.getChildText("price").replaceAll(",","")));
+                prod.setPrice(new BigDecimal(element.getChildText("price").replaceAll(",", "")));
+
+                prod.setPublish_date(element.getChildText("publish_date"));
+
                 prod.setTitle(element.getChildText("title"));
 
 //                prod.setPublish_date(element.getChildText("publih_date"));
                 products.add(prod);
             }
-            productDAO.createProductListFromFile(products);
-
+            return products;
         } catch (JDOMException e) {
             e.printStackTrace();
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
 
+        }
+        return null;
+    }
+
+    public void copyReadedListFromFileToProductDao() {
+        productDAO.createProductListFromFile(readProductsListFromFile());
     }
 
     public Product readObjectFromFile() {

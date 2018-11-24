@@ -1,7 +1,5 @@
 package pl.sda.intermediate12;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,9 +12,8 @@ import pl.sda.intermediate12.categories.CategoryDTO;
 import pl.sda.intermediate12.categories.CategoryService;
 import pl.sda.intermediate12.products.Product;
 import pl.sda.intermediate12.products.ProductDAO;
-import pl.sda.intermediate12.products.XMLToJavaWithJAXBReader;
+import pl.sda.intermediate12.products.JDOMToJavaWithJAXBReader;
 import pl.sda.intermediate12.users.*;
-import pl.sda.intermediate12.weather.model.WeatherResult;
 import pl.sda.intermediate12.weather.services.WeatherService;
 
 import java.util.List;
@@ -41,7 +38,7 @@ public class OnlyOneController {
     @Autowired
     private ProductDAO productDAO;
     @Autowired
-    private XMLToJavaWithJAXBReader xmlToJavaWithJAXBReader;
+    private JDOMToJavaWithJAXBReader JDOMToJavaWithJAXBReader;
 
     @RequestMapping(value = "/categories")
     public String categories(@RequestParam(required = false) String searchText, Model model) {
@@ -130,7 +127,7 @@ public class OnlyOneController {
 
     @RequestMapping(value = "/products", method = RequestMethod.GET)
     public String products(Model model) {
-        xmlToJavaWithJAXBReader.readProductsListFromFile();
+        JDOMToJavaWithJAXBReader.readProductsListFromFile();
         List<Product> products = productDAO.getProductsList();
 
         //To zostanie wyslane na front
